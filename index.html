@@ -62,6 +62,24 @@
       padding: 10px;
       border-radius: 8px;
     }
+
+    /* Rating guidance styles */
+    .rating-question { text-align: left; position: relative; }
+    .rating-header { display:flex; align-items:center; gap:8px; }
+    .rating-header label { font-weight: 600; }
+    .help-btn { width:28px; height:28px; border-radius:50%; border:1px solid #ccc; background:#fff; }
+    .rating-help {
+      position: absolute; right: 0; top: 36px;
+      background:#fff; border:1px solid #ddd; padding:12px; max-width:320px; box-shadow:0 6px 18px rgba(0,0,0,0.08);
+      z-index:2000;
+    }
+    .rating-help[hidden] { display:none; }
+    .rating-subtext { color:#666; font-size:13px; margin-top:6px; }
+    .rating-options { margin-top:12px; }
+    .rating-options label { margin-right:10px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+    .rating-options input[type="radio"] { width:18px; height:18px; }
+    .visually-hidden { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); border:0; }
+    .validation-msg { color: #b00020; font-size:13px; margin-top:8px; display:none; }
   </style>
 
 </head>
@@ -72,13 +90,112 @@
   <p>Human Archetype Test</p>
 
   <!-- 题目区域 -->
-  <div id="questionBox"></div>
+  <div id="questionBox">
+    <form id="ratingForm" aria-describedby="rating-subtext">
+      <div class="rating-question">
+        <div class="rating-header">
+          <label id="rating-label">该描述与您多贴切？</label>
+          <button type="button" class="help-btn" aria-haspopup="dialog" aria-controls="rating-help" aria-expanded="false" title="帮助">?</button>
+        </div>
+
+        <div id="rating-help" class="rating-help" role="dialog" aria-modal="false" aria-labelledby="rating-help-title" hidden>
+          <h3 id="rating-help-title">如何选择</h3>
+          <p>请从 1 到 5 选择最贴切的一项：</p>
+          <ul>
+            <li><strong>1</strong> = 完全不贴切（例如：根本不符合我的情况）</li>
+            <li><strong>3</strong> = 部分贴切（例如：有些情况符合，但不完全）</li>
+            <li><strong>5</strong> = 非常贴切（例如：完全符合我的情况）</li>
+          </ul>
+          <button type="button" class="close-help">关闭</button>
+        </div>
+
+        <div class="rating-options" role="radiogroup" aria-labelledby="rating-label">
+          <label><input type="radio" name="rating" value="1"> 1</label>
+          <label><input type="radio" name="rating" value="2"> 2</label>
+          <label><input type="radio" name="rating" value="3"> 3</label>
+          <label><input type="radio" name="rating" value="4"> 4</label>
+          <label><input type="radio" name="rating" value="5"> 5</label>
+        </div>
+
+        <div class="rating-subtext" id="rating-subtext">说明：1 = 完全不贴切，5 = 非常贴切。点击“？”查看示例。</div>
+        <div class="validation-msg" id="rating-validation">请从 1 到 5 中选择一项。</div>
+      </div>
+
+      <div style="margin-top:14px; text-align:right;">
+        <button type="submit">提交</button>
+      </div>
+    </form>
+  </div>
 
   <!-- 结果区域 -->
   <div id="resultBox" style="display:none;"></div>
 
   <!-- JS -->
   <script src="app.js"></script>
+  <script>
+  (function() {
+    const helpBtn = document.querySelector('.rating-question .help-btn');
+    const helpDialog = document.getElementById('rating-help');
+    const closeBtn = helpDialog ? helpDialog.querySelector('.close-help') : null;
+    const form = document.getElementById('ratingForm');
+    const validationMsg = document.getElementById('rating-validation');
+
+    function openHelp() {
+      helpDialog.hidden = false;
+      helpBtn.setAttribute('aria-expanded', 'true');
+      helpDialog.setAttribute('aria-modal', 'true');
+      closeBtn && closeBtn.focus();
+    }
+    function closeHelp() {
+      helpDialog.hidden = true;
+      helpBtn.setAttribute('aria-expanded', 'false');
+      helpDialog.setAttribute('aria-modal', 'false');
+      helpBtn.focus();
+    }
+
+    if (helpBtn && helpDialog) {
+      helpBtn.addEventListener('click', function(e){ 
+        e.stopPropagation();
+        if (helpDialog.hidden) openHelp(); else closeHelp();
+      });
+      closeBtn && closeBtn.addEventListener('click', function(e){ e.stopPropagation(); closeHelp(); });
+
+      // Esc 键关闭
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !helpDialog.hidden) closeHelp();
+      });
+
+      // 点击 dialog 之外的地方也可关闭
+      document.addEventListener('click', (e) => {
+        if (!helpDialog.hidden && !helpDialog.contains(e.target) && e.target !== helpBtn) closeHelp();
+      });
+    }
+
+    // 表单校验：确保用户选择一个值
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const checked = form.querySelector('input[name="rating"]:checked');
+      if (!checked) {
+        validationMsg.style.display = 'block';
+        validationMsg.setAttribute('role', 'alert');
+        // 将焦点移到校验提示，便于屏幕阅读器用户
+        validationMsg.focus && validationMsg.focus();
+        return;
+      }
+      validationMsg.style.display = 'none';
+
+      // 将结果显示到 resultBox（示例行为）
+      const resultBox = document.getElementById('resultBox');
+      resultBox.style.display = 'block';
+      resultBox.innerHTML = '<h2>已提交</h2><pre>您选择了：' + checked.value + '</pre>';
+      // 实际应用中这里改为发送到后端
+    });
+
+    // 当用户选择时隐藏校验提示
+    const radios = form.querySelectorAll('input[name="rating"]');
+    radios.forEach(r => r.addEventListener('change', () => { validationMsg.style.display = 'none'; }));
+  })();
+  </script>
 
 </body>
 </html>
