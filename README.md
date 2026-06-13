@@ -57,5 +57,3 @@ Human Archetype 是一个基于前端的简易问卷/测试，名为 "AI Worldvi
 ## 联系
 
 仓库：https://github.com/dynhyper-collab/Human-Archetype
-
-如需我协助把 README 翻译为英文、增加徽章、添加 MIT 许可证文件或改进样式与功能，我可以继续操作。
