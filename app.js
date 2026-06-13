@@ -1,3 +1,4 @@
+
 // ==========================
 // 1. 题库
 // ==========================
@@ -60,10 +61,6 @@ let answers = [];
 // ==========================
 
 function renderQuestion() {
-  // Ensure the question container is visible after JS is ready (prevents initial flicker)
-  const container = document.getElementById("questionBox");
-  if (container) container.style.display = "block";
-
   const q = questions[currentIndex];
 
   document.getElementById("questionBox").innerHTML = `
@@ -183,8 +180,5 @@ function showResult() {
 // ==========================
 
 window.onload = function () {
-  // Make sure the question box becomes visible only after JS has bound events and is ready.
-  const qBox = document.getElementById('questionBox');
-  if (qBox) qBox.style.display = 'block';
   renderQuestion();
 };
