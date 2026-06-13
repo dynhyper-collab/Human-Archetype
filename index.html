@@ -90,7 +90,7 @@
   <p>Human Archetype Test</p>
 
   <!-- 题目区域 -->
-  <div id="questionBox" style="display:none;">
+  <div id="questionBox">
     <form id="ratingForm" aria-describedby="rating-subtext">
       <div class="rating-question">
         <div class="rating-header">
@@ -179,7 +179,7 @@
         validationMsg.style.display = 'block';
         validationMsg.setAttribute('role', 'alert');
         // 将焦点移到校验提示，便于屏幕阅读器用户
-n        validationMsg.focus && validationMsg.focus();
+        validationMsg.focus && validationMsg.focus();
         return;
       }
       validationMsg.style.display = 'none';
