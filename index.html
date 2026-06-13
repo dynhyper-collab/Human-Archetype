@@ -6,80 +6,179 @@
 
   <title>AI Worldview Test</title>
 
-  <link rel="stylesheet" href="style.css">
-
   <style>
+    :root{--card-bg:#fff;--muted:#777;--accent:#4caf50;--accent-2:#2196f3}
+    *{box-sizing:border-box}
     body {
       font-family: Arial, sans-serif;
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
-      padding: 40px 20px;
-      text-align: center;
+      padding: 28px 18px;
       background: #fafafa;
+      color: #111;
     }
 
-    h1 {
-      margin-bottom: 10px;
-    }
+    header{display:flex;align-items:center;gap:12px}
+    header h1{margin:0;font-size:20px}
+    header p{margin:0;color:var(--muted);font-size:13px}
 
-    #questionBox {
-      margin-top: 40px;
+    .card{
+      margin-top: 20px;
       padding: 20px;
-      background: white;
+      background: var(--card-bg);
       border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
     }
 
-    button {
-      margin: 5px;
-      padding: 10px 14px;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
+    .center{text-align:center}
+
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid #ddd;background:#fff;cursor:pointer}
+    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+
+    /* Progress */
+    .progress-wrap{height:12px;background:#eee;border-radius:12px;overflow:hidden}
+    .progress-bar{height:12px;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%}
+
+    /* Question area */
+    #questionText{font-size:18px;margin-bottom:18px}
+    .answers{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    .answer-btn{flex:1 1 60px;padding:10px 6px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer}
+    .answer-help{margin-top:10px;color:var(--muted);font-size:13px}
+
+    /* Result profile */
+    .profile-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+    .profile-label{width:170px;font-size:14px}
+    .profile-bar{flex:1;height:14px;background:#eee;border-radius:10px;overflow:hidden}
+    .profile-bar-inner{height:100%;background:linear-gradient(90deg,#7b61ff,#00c2ff);}
+
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f3f3;font-size:13px}
+
+    /* small screens */
+    @media (max-width:420px){
+      .profile-label{width:120px;font-size:13px}
+      #questionText{font-size:16px}
     }
 
-    button:hover {
-      background: #f0f0f0;
-    }
-
-    #resultBox {
-      margin-top: 40px;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      text-align: left;
-    }
-
-    h2 {
-      margin-bottom: 10px;
-    }
-
-    pre {
-      background: #f7f7f7;
-      padding: 10px;
-      border-radius: 8px;
-    }
   </style>
-
 </head>
-
 <body>
 
-  <h1>AI Worldview</h1>
-  <p>人类认知原型测试</p>
-  <p>请选择以下表述与您有多贴切，5:最贴切，1:完全不贴切</p>
-  
-  <!-- 题目区域 -->
-  <div id="questionBox"></div>
+  <header>
+    <div>
+      <h1>AI Worldview</h1>
+      <p>人类认知原型测试 — 单页应用</p>
+    </div>
+  </header>
 
-  <!-- 结果区域 -->
-  <div id="resultBox" style="display:none;"></div>
+  <!-- Landing View -->
+  <section id="view-landing" class="card">
+    <div class="center">
+      <h2>欢迎参加 AI Worldview（人类认知原型）测试</h2>
+      <p style="color:var(--muted);max-width:680px;margin:10px auto;">
+        本测试评估你在信息获取、结构化思考、执行力、资源优化、社交传播与直觉判断等维度上的认知倾向，帮助你理解在 AI 时代的角色与优势。
+      </p>
+    </div>
 
-  <!-- JS -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+      <div style="flex:1;min-width:200px">
+        <strong>测试内容</strong>
+        <p class="" style="margin:6px 0;color:var(--muted)">30 道题 • 预计用时约 3 分钟 • 1–5 分量表</p>
+      </div>
+
+      <div style="flex:1;min-width:200px">
+        <strong>答题说明</strong>
+        <p style="margin:6px 0;color:var(--muted)">每题选择 1（完全不贴切）到 5（非常贴切）。测试为单页体验，不会在中间刷新页面。</p>
+      </div>
+    </div>
+
+    <div class="center" style="margin-top:18px">
+      <button id="startBtn" class="btn primary">开始测试</button>
+      <button id="learnMoreBtn" class="btn">了解更多</button>
+    </div>
+  </section>
+
+  <!-- Test View -->
+  <section id="view-test" class="card" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="badge" id="qCounter">0 / 30</div>
+      </div>
+      <div style="width:60%">
+        <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
+      </div>
+      <div style="width:120px;text-align:right;">
+        <div style="color:var(--muted);font-size:13px" id="estTime">约 3 分钟</div>
+      </div>
+    </div>
+
+    <div id="questionBox" style="margin-top:18px">
+      <div id="questionText"></div>
+
+      <div class="answers" id="answersList">
+        <!-- answer buttons injected -->
+      </div>
+
+      <div class="answer-help center" id="answerHelp">请选择 1（完全不贴切）— 5（非常贴切）</div>
+    </div>
+
+    <div style="margin-top:14px;text-align:center">
+      <button id="prevBtn" class="btn">上一步</button>
+      <button id="nextBtn" class="btn primary" style="display:none">下一题</button>
+    </div>
+  </section>
+
+  <!-- Result View -->
+  <section id="view-result" class="card" style="display:none">
+    <div class="center">
+      <h2>测试结果</h2>
+      <div style="margin-top:6px;color:var(--muted)">以下为基于你作答计算得出的认知原型与认知轮廓。</div>
+    </div>
+
+    <div style="margin-top:14px">
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <div>
+          <div style="color:var(--muted);font-size:13px">主要原型</div>
+          <h3 id="primaryName"></h3>
+        </div>
+        <div>
+          <div style="color:var(--muted);font-size:13px">次要原型</div>
+          <h4 id="secondaryName" style="margin:0;color:var(--muted)"></h4>
+        </div>
+      </div>
+
+      <hr style="margin:14px 0"/>
+
+      <div>
+        <h4>认知轮廓</h4>
+        <div id="profileList"></div>
+      </div>
+
+      <hr style="margin:14px 0"/>
+
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div style="flex:1;min-width:240px">
+          <h4>优势</h4>
+          <ul id="strengthsList"></ul>
+        </div>
+        <div style="flex:1;min-width:240px">
+          <h4>盲点</h4>
+          <ul id="blindspotsList"></ul>
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <h4>AI 时代建议</h4>
+        <div id="recommendations"></div>
+      </div>
+
+      <div style="margin-top:18px;text-align:center">
+        <button id="retakeBtn" class="btn">重新测试</button>
+        <button id="downloadBtn" class="btn">导出摘要（无原始分数）</button>
+      </div>
+
+    </div>
+  </section>
+
   <script src="app.js"></script>
-
 </body>
 </html>
